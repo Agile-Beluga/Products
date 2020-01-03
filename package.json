@@ -1,0 +1,29 @@
+{
+  "name": "kartify-api-products",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server",
+    "seed": "node db/seed"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Agile-Beluga/Kartify-API-Products.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Agile-Beluga/Kartify-API-Products/issues"
+  },
+  "homepage": "https://github.com/Agile-Beluga/Kartify-API-Products#readme",
+  "dependencies": {
+    "csv-parser": "^2.3.2",
+    "express": "^4.17.1",
+    "pg": "^7.17.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}
