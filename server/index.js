@@ -17,30 +17,52 @@ app.use(
 app.get('/', (request, response) => {
     response.json({ info: 'Node.js, Express, and Postgres API' })
 })
-app.post('/products', (request, response) => {
-    const errorIds = [];
-    const successIds = [];
-    fs.createReadStream('./data/product.csv')
-        .pipe(csv())
-        .on('data', async (row) => {
-            let added = await db.createProduct(row, response);
-            if (added) {
-                console.log(`success @ ${row.id}`)
-                successIds.push(row.id)
-            } else {
-                console.log(`fail @ ${row.id}`)
-                errorIds.push(row.id)
-            }
-        })
-        .on('end', () => {
-            console.log('CSV file successfully processed');
-            response.status(200).send({
-                success: successIds,
-                errors: errorIds
-            })
-        });
+// app.post('/products', (request, response) => {
+//     const errorIds = [];
+//     const successIds = [];
+//     fs.createReadStream('./data/product.csv')
+//         .pipe(csv())
+//         .on('data', (row) => {
+//             db.createProduct(row, (err) => {
+//                 if (err) {
+//                     errorIds.push(row.id)
+//                 } else {
+//                     successIds.push(row.id)
+//                 }
+//             });
 
-})
+//         })
+//         .on('end', () => {
+//             console.log('CSV file successfully processed');
+//             response.status(200).send({
+//                 num_success: successIds.length,
+//                 error_ids: errorIds
+//             })
+//         });
+// })
+
+// app.put('/features', (request, response) => {
+//     const errorIds = [];
+//     const successIds = [];
+//     fs.createReadStream('./data/features.csv')
+//         .pipe(csv())
+//         .on('data', (row) => {
+//             db.addFeatures(row, (err) => {
+//                 if (err) {
+//                     errorIds.push(row.id)
+//                 } else {
+//                     successIds.push(row.id)
+//                 }
+//             });
+//         })
+//         .on('end', () => {
+//             console.log('CSV file successfully processed');
+//             response.status(200).send({
+//                 num_success: successIds.length,
+//                 error_ids: errorIds
+//             })
+//         });
+// })
 app.listen(port, () => {
     console.log(`App running on port ${port}. http://localhost:${port}`)
 })
