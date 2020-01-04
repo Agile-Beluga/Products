@@ -1,9 +1,9 @@
 const Pool = require('pg').Pool
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
+    user: process.env.POSTGRES_USER,
+    host: 'db',
     database: 'products',
-    password: 'docker',
+    password: process.env.POSTGRES_PASSWORD,
     port: 5432,
 })
 
@@ -23,7 +23,17 @@ const addData = (dataType, row, cb) => {
     }
 }
 
+const getProductList = (page, count) => {
+    return pool.query('SELECT * FROM products LIMIT $1 OFFSET $2', [count, (page - 1) * count])
+}
+
+const getProductByID = (id) => {
+    console.log(id)
+    return pool.query('SELECT * FROM products WHERE id=$1', [id])
+}
 
 module.exports = {
-    addData
+    addData,
+    getProductList,
+    getProductByID
 }

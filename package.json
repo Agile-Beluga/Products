@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server",
-    "seed": "node db/seed"
+    "seed": "node db/seed",
+    "compose": "docker-compose up -d"
   },
   "repository": {
     "type": "git",
