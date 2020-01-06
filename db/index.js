@@ -8,8 +8,22 @@ const pool = new Pool({
 })
 
 const getProductList = (page = 1, count = 5) => {
-    return pool.query('SELECT * FROM products LIMIT $1 OFFSET $2',
-        [count, (page - 1) * count]).then(({ rows }) => rows)
+
+    pool.connect()
+        .then(client => {
+            return client
+                .query('SELECT * FROM products LIMIT $1 OFFSET $2', [count, (page - 1) * count])
+                .then(({ rows }) => {
+                    client.release()
+                    return rows
+                })
+                .catch(err => {
+                    client.release()
+                    return err
+                })
+        })
+    // return pool.query('SELECT * FROM products LIMIT $1 OFFSET $2',
+    //     [count, (page - 1) * count]).then(({ rows }) => rows)
 }
 
 const getProductByID = (id) => {
