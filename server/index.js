@@ -18,14 +18,20 @@ app.get('/', (request, response) => {
 
 app.get('/products/list', (request, response) => {
     db.getProductList(request.query.page, request.query.count)
-        .then(({ rows }) => response.json(rows))
+        .then((results) => response.json(results))
         .catch((err) => response.json(err))
 })
 
 app.get('/products/:product_id', (request, response) => {
-    console.log(request.params.product_id)
     db.getProductByID(request.params.product_id)
-        .then(({ rows }) => response.json(rows))
+        .then((results) => response.json(results))
+        .catch((err) => response.json(err))
+})
+
+app.get('/products/:product_id/styles', (request, response) => {
+    console.log(request.params.product_id)
+    db.getStyleByProductID(request.params.product_id)
+        .then((results) => response.json(results))
         .catch((err) => response.json(err))
 })
 
