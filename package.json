@@ -6,7 +6,8 @@
   "scripts": {
     "test": "mocha",
     "start": "nodemon server",
-    "seed": "node db/seed",
+    "postgres": "psql -U postgres -h localhost",
+    "seed": "psql -U postgres -h localhost -d products -f schema.sql",
     "compose": "docker-compose up -d"
   },
   "repository": {

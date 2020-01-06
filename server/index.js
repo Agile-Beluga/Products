@@ -29,7 +29,6 @@ app.get('/products/:product_id', (request, response) => {
 })
 
 app.get('/products/:product_id/styles', (request, response) => {
-    console.log(request.params.product_id)
     db.getStyleByProductID(request.params.product_id)
         .then((results) => response.json(results))
         .catch((err) => response.json(err))

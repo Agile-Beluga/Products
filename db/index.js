@@ -24,7 +24,13 @@ const getProductByID = (id) => {
 }
 
 const getStyleByProductID = (id) => {
-    return pool.query('SELECT * FROM styles LEFT OUTER JOIN photos on styles.id=photos.style_id WHERE product_id=$1', [id]).then(({ rows }) => rows)
+    return pool.query('SELECT * FROM styles WHERE product_id=$1', [id])
+        .then(({ rows }) => {
+            return {
+                product_id: id,
+                results: rows
+            }
+        })
 }
 
 module.exports = {
