@@ -1,5 +1,5 @@
--- DROP TABLE IF EXISTS photos;
--- DROP TABLE IF EXISTS tempPhotos;
+DROP TABLE IF EXISTS photos;
+DROP TABLE IF EXISTS tempPhotos;
 -- DROP TABLE IF EXISTS skus;
 -- DROP TABLE IF EXISTS features;
 -- DROP TABLE IF EXISTS styles;
@@ -57,31 +57,34 @@
 -- FROM './csv_files/skus.csv' DELIMITER ',' CSV HEADER;
 
 
--- CREATE TABLE tempPhotos (
---     ID INTEGER,
---     PRODUCT_ID INTEGER,
---     THUMBNAIL_URL VARCHAR (100000),
---     URL VARCHAR (100000)
--- );
-
--- COPY tempPhotos 
--- FROM './csv_files/photos.csv' DELIMITER ',' CSV HEADER;
-
-
--- CREATE TABLE photos (
---     ID INTEGER PRIMARY KEY,
---     PRODUCT_ID INTEGER,
---     THUMBNAIL_URL VARCHAR (100000),
---     URL VARCHAR (100000)
--- );
-
--- INSERT INTO photos SELECT * FROM tempPhotos ON CONFLICT DO NOTHING;
-
-CREATE TABLE related (
-    ID INTEGER PRIMARY KEY,
-    CURRENT_PRODUCT_ID INTEGER,
-    RELATED_PRODUCT_ID INTEGER
+CREATE TABLE tempPhotos (
+    ID INTEGER,
+    STYLE_ID INTEGER,
+    THUMBNAIL_URL VARCHAR (100000),
+    URL VARCHAR (100000)
 );
 
-COPY related
-FROM './csv_files/related.csv' DELIMITER ',' CSV HEADER;
+COPY tempPhotos 
+FROM './csv_files/photos.csv' DELIMITER ',' CSV HEADER;
+
+
+CREATE TABLE photos (
+    ID INTEGER PRIMARY KEY,
+    STYLE_ID INTEGER,
+    THUMBNAIL_URL VARCHAR (100000),
+    URL VARCHAR (100000),
+    FOREIGN KEY (STYLE_ID) REFERENCES styles(ID)
+);
+
+INSERT INTO photos SELECT * FROM tempPhotos ON CONFLICT DO NOTHING;
+
+
+
+-- CREATE TABLE related (
+--     ID INTEGER PRIMARY KEY,
+--     CURRENT_PRODUCT_ID INTEGER,
+--     RELATED_PRODUCT_ID INTEGER
+-- );
+
+-- COPY related
+-- FROM './csv_files/related.csv' DELIMITER ',' CSV HEADER;
