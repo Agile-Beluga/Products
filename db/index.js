@@ -64,15 +64,18 @@ const getStyleByProductID = (id) => {
         .then(client => {
             return client.query('SELECT * FROM styles WHERE product_id=$1', [id])
                 .then(({ rows }) => {
-
                     styles = rows;
-                    const stylePromises = styles.map(style =>
-                        client.query('SELECT * FROM skus WHERE style_id=$1', [style.id]));
-                    return Promise.all(stylePromises)
+                    return Promise.all(styles.map(style =>
+                        client.query('SELECT * FROM skus WHERE style_id=$1', [style.id])))
                 })
                 .then((skus) => {
-                    console.log("skus: " + skus)
-                    styles.forEach((style, index) => style.skus = skus[index].rows)
+                    console.log("skus: " + JSON.stringify(skus[0].rows))
+                    styles.forEach((style, index) => {
+                        console.log(index)
+                        const styleSku = {};
+                        skus[index].rows.forEach((row) => styleSku[row.size] = row.quantity)
+                        style.skus = styleSku;
+                    })
                     client.release()
                     return {
                         product_id: id,
