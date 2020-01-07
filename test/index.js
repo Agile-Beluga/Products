@@ -1,3 +1,4 @@
+const assert = require('assert');
 const chakram = require('chakram'),
     expect = chakram.expect;
 
@@ -39,17 +40,19 @@ describe("/products/:product_id", () => {
     )
 })
 
-describe("/products/:product_id/styles", () => {
-    it("Returns a response", () => {
+xdescribe("/products/:product_id/styles", () => {
+    it("Returns a response", function () {
+        this.timeout(10000)
         const response = chakram.get(`${root}/products/1/styles`)
         expect(response).to.have.status(200);
         return chakram.wait()
     })
 
-    it("Returns results array for product id=1", () =>
+    it("Returns results array for product id=1", function () {
+        this.timeout(10000)
         chakram.get(`${root}/products/1/styles`)
             .then(({ body }) => expect(body.results).to.be.an("array"))
-    )
+    })
 
     it("Returns correct style information for style id=1", function () {
         this.timeout(10000)
