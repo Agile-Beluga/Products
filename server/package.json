@@ -1,0 +1,36 @@
+{
+  "name": "kartify-api-products",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha",
+    "start": "nodemon server",
+    "postgres": "psql -U postgres -h localhost",
+    "seed": "psql -U postgres -h localhost -d products -f schema.sql",
+    "compose": "docker-compose up -d"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Agile-Beluga/Kartify-API-Products.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Agile-Beluga/Kartify-API-Products/issues"
+  },
+  "homepage": "https://github.com/Agile-Beluga/Kartify-API-Products#readme",
+  "dependencies": {
+    "csv-parser": "^2.3.2",
+    "express": "^4.17.1",
+    "pg": "^7.17.0",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^5.21.3"
+  },
+  "devDependencies": {
+    "chakram": "^1.5.0",
+    "mocha": "^7.0.0",
+    "nodemon": "^2.0.2",
+    "nyc": "^15.0.0"
+  }
+}

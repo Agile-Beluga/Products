@@ -5,7 +5,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
 const port = 3000
-const db = require('../db')
+const db = require('./db')
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({
@@ -29,12 +29,16 @@ app.get('/products/:product_id', (request, response) => {
 })
 
 app.get('/products/:product_id/styles', (request, response) => {
-    console.log(request.params.product_id)
     db.getStyleByProductID(request.params.product_id)
         .then((results) => response.json(results))
         .catch((err) => response.json(err))
 })
 
+app.get('/products/:product_id/related', (request, response) => {
+    db.getRelatedProducts(request.params.product_id)
+        .then((results) => response.json(results))
+        .catch((err) => response.json(err))
+})
 app.listen(port, () => {
     console.log(`App running on port ${port}. http://localhost:${port}`)
 })
