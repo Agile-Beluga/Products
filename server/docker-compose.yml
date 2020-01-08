@@ -19,13 +19,12 @@ services:
     ports:
       - 5432:5432
     volumes:
-    - $PWD/data/postgres_data:/var/lib/postgresql/data
+    - $PWD/../db/postgres-data:/var/lib/postgresql/data
   web:
     # build: .
     # depends_on:
     #   - db
     image: lainermeister/agile-beluga-products
-    user: node
     working_dir: /server
     environment:
       - NODE_ENV=production

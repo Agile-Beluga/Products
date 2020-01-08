@@ -1,20 +1,3 @@
-const Sequelize = require('sequelize');
-
-// Option 1: Passing parameters separately
-// const sequelize = new Sequelize('products', process.env.POSTGRES_USER, process.env.POSTGRES_PASSWORD, {
-//     host: 'db',
-//     dialect: 'postgres'
-// });
-
-// sequelize
-//     .authenticate()
-//     .then(() => {
-//         console.log('Connection has been established successfully.');
-//     })
-//     .catch(err => {
-//         console.error('Unable to connect to the database:', err);
-//     });
-
 const Pool = require('pg').Pool
 const pool = new Pool({
     user: process.env.POSTGRES_USER,
@@ -35,8 +18,6 @@ const getProductList = (page = 1, count = 5) => {
                 client.release()
                 return err
             }))
-    // return pool.query('SELECT * FROM products LIMIT $1 OFFSET $2',
-    //     [count, (page - 1) * count]).then(({ rows }) => rows)
 }
 
 const getProductByID = (id) => {
