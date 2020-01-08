@@ -34,6 +34,11 @@ app.get('/products/:product_id/styles', (request, response) => {
         .catch((err) => response.json(err))
 })
 
+app.get('/products/:product_id/related', (request, response) => {
+    db.getRelatedProducts(request.params.product_id)
+        .then((results) => response.json(results))
+        .catch((err) => response.json(err))
+})
 app.listen(port, () => {
     console.log(`App running on port ${port}. http://localhost:${port}`)
 })

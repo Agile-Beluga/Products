@@ -8,14 +8,24 @@
 #       POSTGRES_PASSWORD: example
 #     ports:
 #       - 5432:5432
-version: '2'
+version: '3.2'
 services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_USER=postgres
+    ports:
+      - 5432:5432
+    volumes:
+    - $PWD/data/postgres_data:/var/lib/postgresql/data
   web:
-    build: .
-    depends_on:
-      - db
-    image: "node:8"
-    user: "node"
+    # build: .
+    # depends_on:
+    #   - db
+    image: lainermeister/agile-beluga-products
+    user: node
     working_dir: /server
     environment:
       - NODE_ENV=production
@@ -25,11 +35,5 @@ services:
       - ./:/server
     ports:
       - "3000:3000"
-    command: "npm start"
-  db:
-    image: postgres
-    restart: always
-    ports:
-      - 5432:5432
-    volumes:
-    - $PWD/db/postgres_data:/var/lib/postgresql/data
+    # command: "npm start"
+  

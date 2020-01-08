@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "nyc mocha --exit",
+    "test": "mocha",
     "start": "nodemon server",
     "postgres": "psql -U postgres -h localhost",
     "seed": "psql -U postgres -h localhost -d products -f schema.sql",

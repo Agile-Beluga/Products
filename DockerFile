@@ -1,10 +1,7 @@
-# # specify the node base image with your desired version node:<version>
-# FROM node:10
-# RUN mkdir /server
-# ADD . /server
-# WORKDIR /server
-# RUN npm install
+FROM node:11
+WORKDIR /app
+ADD . .
 
-# # replace this with your application's default port
-# EXPOSE 3000
-# CMD ["node", "server"]
+RUN npm install
+EXPOSE 8080
+CMD ["npm", "start"]

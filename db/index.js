@@ -64,17 +64,36 @@ const getStyleByProductID = (id) => {
         .then(client => {
             return client.query('SELECT * FROM styles WHERE product_id=$1', [id])
                 .then(({ rows }) => {
-                    styles = rows;
+                    styles = rows.map((row) => {
+                        row.style_id = row.id;
+                        delete row.id;
+                        delete row.product_id;
+                        row["default?"] = row.default_item;
+                        delete row.default_item;
+                        return row;
+                    });
                     return Promise.all(styles.map(style =>
-                        client.query('SELECT * FROM skus WHERE style_id=$1', [style.id])))
+                        client.query('SELECT * FROM skus WHERE style_id=$1', [style.style_id])))
                 })
                 .then((skus) => {
-                    console.log("skus: " + JSON.stringify(skus[0].rows))
                     styles.forEach((style, index) => {
-                        console.log(index)
                         const styleSku = {};
                         skus[index].rows.forEach((row) => styleSku[row.size] = row.quantity)
                         style.skus = styleSku;
+                    })
+                    console.log("now querying photos")
+                    return Promise.all(styles.map(style =>
+                        client.query('SELECT * FROM photos WHERE style_id=$1', [style.style_id])))
+                })
+                .then((photos) => {
+                    console.log(photos.length + " style photos found")
+                    styles.forEach((style, index) => {
+                        console.log(index)
+                        const stylePhotos = [];
+                        photos[index].rows.forEach(({ thumbnail_url, url }) => {
+                            stylePhotos.push({ thumbnail_url, url })
+                        })
+                        style.photos = stylePhotos;
                     })
                     client.release()
                     return {
@@ -87,12 +106,27 @@ const getStyleByProductID = (id) => {
                     console.log(err)
                 })
         })
+}
 
-
+const getRelatedProducts = (id) => {
+    return pool.connect()
+        .then(client =>
+            client.query('SELECT * FROM related where current_product_id=$1', [id])
+                .then(({ rows }) => {
+                    client.release()
+                    console.log("related: " + rows)
+                    return rows.map(row => row.related_product_id);
+                })
+                .catch(err => {
+                    client.release()
+                    return err
+                })
+        )
 }
 
 module.exports = {
     getProductList,
     getProductByID,
-    getStyleByProductID
+    getStyleByProductID,
+    getRelatedProducts
 }
