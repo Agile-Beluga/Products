@@ -7,6 +7,8 @@ const pool = new Pool({
     port: 5432,
 })
 
+console.log(`connecting to db ${process.env.AGILE_BELUGA_DB}`)
+
 const getProductList = (page = 1, count = 5) => {
     return pool.connect()
         .then(client => client.query('SELECT * FROM products LIMIT $1 OFFSET $2', [count, (page - 1) * count])

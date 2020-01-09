@@ -3,15 +3,17 @@ version: '3.2'
 services:
   web:
     image: lainermeister/agile-beluga-products
-    working_dir: /server
+    working_dir: /app
     environment:
       - NODE_ENV=production
       - POSTGRES_PASSWORD=docker
       - POSTGRES_USER=postgres
       - AGILE_BELUGA_DB=ec2-18-216-55-62.us-east-2.compute.amazonaws.com
     volumes:
-      - ./:/server
+      - ./:/app 
     ports:
       - "3000:3000"
     # command: "npm start"
-  
+
+
+    
