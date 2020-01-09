@@ -1,3 +1,4 @@
 /node_modules
-/data
-/db/postgres_data
+/db/csv-files
+/db/postgres-data
+/package-lock.json
