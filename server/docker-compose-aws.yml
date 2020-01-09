@@ -1,17 +1,6 @@
 
 version: '3.2'
 services:
-  db:
-    image: postgres
-    restart: always
-    environment:
-      - POSTGRES_PASSWORD=docker
-      - POSTGRES_USER=postgres
-    ports:
-      - 5432:5432
-    volumes:
-    - $PWD/../db/postgres-data:/var/lib/postgresql/data
-    - $PWD/../db/csv-files:/var/lib/postgresql/data/csv-files
   web:
     image: lainermeister/agile-beluga-products
     working_dir: /server

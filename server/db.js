@@ -1,8 +1,8 @@
 const Pool = require('pg').Pool
 const pool = new Pool({
     user: process.env.POSTGRES_USER,
-    host: 'db',
-    database: 'products',
+    host: process.env.AGILE_BELUGA_DB,
+    database: 'postgres',
     password: process.env.POSTGRES_PASSWORD,
     port: 5432,
 })
