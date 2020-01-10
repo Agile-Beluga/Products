@@ -6,27 +6,20 @@ const bodyParser = require('body-parser')
 const app = express()
 const port = 3000
 const db = require('./db')
-
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({
     extended: true,
 }))
-
-app.get('/loaderio-a9b96e566e83ea103824b022d25a1116', (request, response) => {
-    response.send('loaderio-a9b96e566e83ea103824b022d25a1116')
-})
-
-app.get('/kvPairs.json', (request, response) => {
-    const kvPairs = {
-        "keys": ["product_id"],
-        "values": []
-    }
-
-    for (let i = 0; i < 10000; i++) {
-        kvPairs.values.push([String(Math.floor(Math.random() * 100011))])
-    }
-    response.send(kvPairs)
-})
+const redis = require("redis"),
+    cache = redis.createClient({
+        host: 'redis'
+    });
+cache.on("error", function (err) {
+    console.log("Error " + err);
+});
+// app.get('/loaderio-a9b96e566e83ea103824b022d25a1116', (request, response) => {
+//     response.send('loaderio-a9b96e566e83ea103824b022d25a1116')
+// })
 
 app.get('/products/list', (request, response) => {
     db.getProductList(request.query.page, request.query.count)
