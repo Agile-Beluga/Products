@@ -7,7 +7,7 @@ const pool = new Pool({
     port: 5432,
 })
 
-console.log(`connecting to db ${process.env.AGILE_BELUGA_DB}`)
+console.log(`connecting to db ${process.env.AGILE_BELUGA_DB} ${process.env.POSTGRES_USER}`)
 
 const getProductList = (page = 1, count = 5) => {
     return pool.connect()
@@ -41,48 +41,67 @@ const getProductByID = (id) => {
         )
 }
 
+// const getStyleByProductID = (id) => {
+//     let styles = []
+//     return pool.connect()
+//         .then(client => {
+//             return client.query('SELECT * FROM styles WHERE product_id=$1', [id])
+//                 .then(({ rows }) => {
+//                     styles = rows.map((row) => {
+//                         row.style_id = row.id;
+//                         delete row.id;
+//                         delete row.product_id;
+//                         row["default?"] = row.default_item;
+//                         delete row.default_item;
+//                         return row;
+//                     });
+//                     return Promise.all(styles.map(style =>
+//                         client.query('SELECT * FROM skus WHERE style_id=$1', [style.style_id])))
+//                 })
+//                 .then((skus) => {
+//                     styles.forEach((style, index) => {
+//                         const styleSku = {};
+//                         skus[index].rows.forEach((row) => styleSku[row.size] = row.quantity)
+//                         style.skus = styleSku;
+//                     })
+//                     console.log("now querying photos")
+//                     return Promise.all(styles.map(style =>
+//                         client.query('SELECT * FROM photos WHERE style_id=$1', [style.style_id])))
+//                 })
+//                 .then((photos) => {
+//                     console.log(photos.length + " style photos found")
+//                     styles.forEach((style, index) => {
+//                         console.log(index)
+//                         const stylePhotos = [];
+//                         photos[index].rows.forEach(({ thumbnail_url, url }) => {
+//                             stylePhotos.push({ thumbnail_url, url })
+//                         })
+//                         style.photos = stylePhotos;
+//                     })
+//                     client.release()
+//                     return {
+//                         product_id: id,
+//                         results: styles
+//                     }
+//                 })
+//                 .catch(err => {
+//                     client.release()
+//                     console.log(err)
+//                 })
+//         })
+// }
+
 const getStyleByProductID = (id) => {
     let styles = []
     return pool.connect()
         .then(client => {
-            return client.query('SELECT * FROM styles WHERE product_id=$1', [id])
+            return client.query(`SELECT s.id, s.product_id, s.sale_price, s.original_price, s.default_item, sk.id AS sku_id, sk.style_id, sk.size, sk.quantity, p.id AS photo_id, p.thumbnail_url, p.url FROM 
+            (SELECT * FROM styles WHERE product_id=$1) s 
+            LEFT JOIN skus sk ON sk.style_id=s.id
+            LEFT JOIN photos p ON p.style_id=s.id`, [id])
                 .then(({ rows }) => {
-                    styles = rows.map((row) => {
-                        row.style_id = row.id;
-                        delete row.id;
-                        delete row.product_id;
-                        row["default?"] = row.default_item;
-                        delete row.default_item;
-                        return row;
-                    });
-                    return Promise.all(styles.map(style =>
-                        client.query('SELECT * FROM skus WHERE style_id=$1', [style.style_id])))
-                })
-                .then((skus) => {
-                    styles.forEach((style, index) => {
-                        const styleSku = {};
-                        skus[index].rows.forEach((row) => styleSku[row.size] = row.quantity)
-                        style.skus = styleSku;
-                    })
-                    console.log("now querying photos")
-                    return Promise.all(styles.map(style =>
-                        client.query('SELECT * FROM photos WHERE style_id=$1', [style.style_id])))
-                })
-                .then((photos) => {
-                    console.log(photos.length + " style photos found")
-                    styles.forEach((style, index) => {
-                        console.log(index)
-                        const stylePhotos = [];
-                        photos[index].rows.forEach(({ thumbnail_url, url }) => {
-                            stylePhotos.push({ thumbnail_url, url })
-                        })
-                        style.photos = stylePhotos;
-                    })
                     client.release()
-                    return {
-                        product_id: id,
-                        results: styles
-                    }
+                    return rows;
                 })
                 .catch(err => {
                     client.release()

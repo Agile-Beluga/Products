@@ -1,6 +1,6 @@
 const csv = require('csv-parser');
 const fs = require('fs');
-
+require('newrelic');
 const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
@@ -12,8 +12,20 @@ app.use(bodyParser.urlencoded({
     extended: true,
 }))
 
-app.get('/', (request, response) => {
-    response.json({ info: 'Node.js, Express, and Postgres API' })
+app.get('/loaderio-a9b96e566e83ea103824b022d25a1116', (request, response) => {
+    response.send('loaderio-a9b96e566e83ea103824b022d25a1116')
+})
+
+app.get('/kvPairs.json', (request, response) => {
+    const kvPairs = {
+        "keys": ["product_id"],
+        "values": []
+    }
+
+    for (let i = 0; i < 10000; i++) {
+        kvPairs.values.push([String(Math.floor(Math.random() * 100011))])
+    }
+    response.send(kvPairs)
 })
 
 app.get('/products/list', (request, response) => {
