@@ -92,16 +92,44 @@ const getProductByID = (id) => {
 // }
 
 const getStyleByProductID = (id) => {
+
+    // skus(ARRAY(SELECT '{ ' || sk.size || ': ' || sk.quantity || '}' FROM skus sk WHERE sk.style_id = s.id)),
+    // LEFT JOIN skus sk ON sk.style_id=s.id
+
+    // (SELECT ROW_TO_JSON(ROW(sk.size, sk.quantity)) FROM skus sk WHERE sk.style_id=s.id),
+
     let styles = []
     return pool.connect()
         .then(client => {
-            return client.query(`SELECT s.id, s.product_id, s.sale_price, s.original_price, s.default_item, sk.id AS sku_id, sk.style_id, sk.size, sk.quantity, p.id AS photo_id, p.thumbnail_url, p.url FROM 
-            (SELECT * FROM styles WHERE product_id=$1) s 
-            LEFT JOIN skus sk ON sk.style_id=s.id
-            LEFT JOIN photos p ON p.style_id=s.id`, [id])
+            return client.query(`SELECT s.id style_id, s.name, s.original_price, s.sale_price, s.default_item "default?", 
+            (select array_to_json(array_agg(row_to_json(p)))
+            from (
+                select thumbnail_url, url
+                from photos
+                where photos.style_id=s.id) p
+                ) photos,
+                (select array_to_json(array_agg(row_to_json(sk)))
+                    from (
+                      select size, quantity
+                      from skus
+                      where skus.style_id=s.id) sk
+                  ) skus
+                 FROM 
+            (SELECT * FROM styles WHERE product_id=$1) s`, [id])
                 .then(({ rows }) => {
                     client.release()
-                    return rows;
+                    rows.forEach((row) => {
+                        const styleSkus = {}
+                        row.skus.forEach((sku) => {
+                            styleSkus[sku.size] = sku.quantity
+                        })
+                        row.skus = styleSkus;
+                    })
+
+                    return {
+                        product_id: id,
+                        results: rows
+                    };
                 })
                 .catch(err => {
                     client.release()
