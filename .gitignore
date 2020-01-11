@@ -2,5 +2,4 @@
 /db/csv-files
 /db/postgres-data
 /server/package-lock.json
-/server/docker-compose.yml
-/server/docker-compose-aws.yml
+/server/docker-compose*.yml
