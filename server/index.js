@@ -6,36 +6,35 @@ const bodyParser = require('body-parser')
 const app = express()
 const port = 3000
 const db = require('./db')
+const cache = require('./cache')
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({
     extended: true,
 }))
-const redis = require("redis"),
-    client = redis.createClient({
-        host: 'redis'
-    });
-client.on("error", function (err) {
-    console.log("Error " + err);
-});
 
-client.set("string key", "string val", redis.print);
-client.hset("hash key", "hashtest 1", "some value", redis.print);
-client.hset(["hash key", "hashtest 2", "some other value"], redis.print);
-client.hkeys("hash key", function (err, replies) {
-    console.log(replies.length + " replies:");
-    replies.forEach(function (reply, i) {
-        console.log("    " + i + ": " + reply);
-    });
-    client.quit();
-});
 // app.get('/loaderio-a9b96e566e83ea103824b022d25a1116', (request, response) => {
 //     response.send('loaderio-a9b96e566e83ea103824b022d25a1116')
 // })
 
 app.get('/products/list', (request, response) => {
-    db.getProductList(request.query.page, request.query.count)
+    const { page, count } = request.query;
+    console.log("getting list" + JSON.stringify({ page, count }))
+    cache.get('/products/list', JSON.stringify({ page, count }))
+        .then((cachedResponse) => {
+            if (cachedResponse) {
+                console.log("cached response found")
+                return (JSON.parse(cachedResponse))
+            } else {
+                console.log("no cached response, querying db")
+                return db.getProductList(page, count)
+                    .then((results) => {
+                        cache.set('/products/list', JSON.stringify({ page, count }), JSON.stringify(results))
+                        return results;
+                    })
+            }
+        })
         .then((results) => response.json(results))
-        .catch((err) => response.json(err))
+        .catch((err) => console.log(err))
 })
 
 app.get('/products/:product_id', (request, response) => {
@@ -56,5 +55,5 @@ app.get('/products/:product_id/related', (request, response) => {
         .catch((err) => response.json(err))
 })
 app.listen(port, () => {
-    console.log(`App running on port ${port}. http://localhost:${port}`)
+    console.log(`Latest app running on port ${port}. http://localhost:${port}`)
 })
