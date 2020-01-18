@@ -1,4 +1,5 @@
-/node_modules
+/server/node_modules
 /db/csv-files
 /db/postgres-data
-/package-lock.json
+/server/package-lock.json
+/server/docker-compose*.yml

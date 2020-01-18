@@ -1,4 +1,3 @@
-/data/postgres_data
-/schema_design
 /node_modules
-/test 
+test.js
+docker-compose*.yml
