@@ -7,8 +7,7 @@
     "test": "mocha",
     "start": "node index.js",
     "dev-start": "nodemon",
-    "postgres": "psql -U postgres -h localhost",
-    "seed": "psql -U postgres -h localhost -d products -f schema.sql",
+    "postgres": "psql -d postgres -U postgres -h $AGILE_BELUGA_DB -p 5432",
     "compose": "docker-compose up -d",
     "docker-push": "docker build -t lainermeister/agile-beluga-products . && docker push lainermeister/agile-beluga-products "
   },
@@ -23,6 +22,7 @@
   },
   "homepage": "https://github.com/Agile-Beluga/Kartify-API-Products#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "csv-parser": "^2.3.2",
     "express": "^4.17.1",
     "newrelic": "^6.2.0",

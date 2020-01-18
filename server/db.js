@@ -22,74 +22,39 @@ const getProductList = (page = 1, count = 5) => {
             }))
 }
 
+
 const getProductByID = (id) => {
     return pool.connect()
-        .then(client =>
-            Promise.all([
-                client.query('SELECT * FROM products where id=$1', [id]),
-                client.query('SELECT * FROM features where product_id=$1', [id])
-            ]).then(([productResults, featureResults]) => [productResults.rows[0], featureResults.rows])
-                .then(([productInfo, featureInfo]) => {
+        .then(client => {
+            return client.query(`SELECT *, 
+            (SELECT array_to_json(array_agg(row_to_json(f))) features 
+            FROM (select feature, value from features where product_id=$1) f) 
+            FROM products where id=$1`, [id])
+                .then(({ rows }) => {
                     client.release()
-                    productInfo.features = featureInfo;
-                    return productInfo;
+                    return rows[0]
                 })
                 .catch(err => {
                     client.release()
                     return err
                 })
-        )
-}
-
-// PROMISE CHAINING QUERIES
-/* const getStyleByProductID = (id) => {
-    let styles = []
-    return pool.connect()
-        .then(client => {
-            return client.query('SELECT * FROM styles WHERE product_id=$1', [id])
-                .then(({ rows }) => {
-                    styles = rows.map((row) => {
-                        row.style_id = row.id;
-                        delete row.id;
-                        delete row.product_id;
-                        row["default?"] = row.default_item;
-                        delete row.default_item;
-                        return row;
-                    });
-                    return Promise.all(styles.map(style =>
-                        client.query('SELECT * FROM skus WHERE style_id=$1', [style.style_id])))
-                })
-                .then((skus) => {
-                    styles.forEach((style, index) => {
-                        const styleSku = {};
-                        skus[index].rows.forEach((row) => styleSku[row.size] = row.quantity)
-                        style.skus = styleSku;
-                    })
-                    return Promise.all(styles.map(style =>
-                        client.query('SELECT * FROM photos WHERE style_id=$1', [style.style_id])))
-                })
-                .then((photos) => {
-                    styles.forEach((style, index) => {
-                        const stylePhotos = [];
-                        photos[index].rows.forEach(({ thumbnail_url, url }) => {
-                            stylePhotos.push({ thumbnail_url, url })
-                        })
-                        style.photos = stylePhotos;
-                    })
-                    client.release()
-                    return {
-                        product_id: id,
-                        results: styles
-                    }
-                })
-                .catch(err => {
-                    client.release()
-                    console.log(err)
-                })
         })
-} */
-
-// ONE QUERY
+}
+/* `SELECT s.id style_id, s.name, s.original_price, s.sale_price, s.default_item "default?", 
+            (select array_to_json(array_agg(row_to_json(p)))
+            from (
+                select thumbnail_url, url
+                from photos
+                where photos.style_id=s.id) p
+                ) photos,
+                (select array_to_json(array_agg(row_to_json(sk)))
+                    from (
+                      select size, quantity
+                      from skus
+                      where skus.style_id=s.id) sk
+                  ) skus
+                 FROM 
+            (SELECT * FROM styles WHERE product_id=2) s` */
 const getStyleByProductID = (id) => {
     let styles = []
     return pool.connect()
@@ -111,11 +76,32 @@ const getStyleByProductID = (id) => {
             (SELECT * FROM styles WHERE product_id=$1) s`, [id])
                 .then(({ rows }) => {
                     client.release()
+                    console.log("rows: " + JSON.stringify(rows))
                     rows.forEach((row) => {
                         const styleSkus = {}
-                        row.skus.forEach((sku) => styleSkus[sku.size] = sku.quantity)
+                        console.log(`skus & photos ${JSON.stringify(row.skus)} ${typeof row.skus}
+                        ${JSON.stringify(row.photos)} ${typeof row.photos}
+                        `)
+                        if (row.skus !== null) {
+                            row.skus.forEach((sku) => styleSkus[sku.size] = sku.quantity)
+                        } else {
+                            console.log("skus is null")
+                            styleSkus.null = null;
+                        }
+                        console.log("line 91")
+                        if (row.photos !== null) {
+                            console.log("photos is not null")
+                        } else {
+                            console.log("photos is null")
+                            row.photos = [{
+                                thumbnail_url: null,
+                                url: null
+                            }]
+                        }
                         row.skus = styleSkus;
+                        row.sale_price === "null" ? row.sale_price = "0" : row.sale_price = row.sale_price;
                     })
+                    console.log("cleaned rows: " + JSON.stringify(rows))
                     return {
                         product_id: id,
                         results: rows
