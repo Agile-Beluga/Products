@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "chakram": "^1.5.0",
-    "mocha": "^7.0.0",
+    "mocha": "^10.2.0",
     "nodemon": "^2.0.2",
     "nyc": "^15.0.0"
   }
